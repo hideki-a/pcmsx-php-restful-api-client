@@ -8,7 +8,7 @@ require_once __DIR__ . DS . '..' . DS . 'src' . DS . 'ClientBuilder.php';
 
 // NOTE: CMS認証情報を.envから読み込み（このサンプルに直接書いて公開することができないので.envを利用しています）
 require_once __DIR__ . DS . '..' . DS . 'vendor' . DS . 'autoload.php';
-Dotenv\Dotenv::createImmutable(__DIR__)->load();
+Dotenv\Dotenv::createImmutable(__DIR__ . DS . '..' . DS)->load();
 
 use PowerCMSX\RESTfulAPI\ClientBuilder;
 
