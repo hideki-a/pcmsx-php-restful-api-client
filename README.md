@@ -133,3 +133,33 @@ ContactMethodは以下から選択します。
 - トークンの取得: ContactMethod::TOKEN
 - 投稿内容の確認: ContactMethod::CONFIRM
 - 投稿内容の送信: ContactMethod::SUBMIT
+
+## 補足
+
+### ステータスの設定
+
+`PowerCMSX\ObjectStatus`を利用するとステータスの値を覚えることなく設定できます。
+
+- `ObjectStatus::Draft`: 下書き
+- `ObjectStatus::Review`: レビュー
+- `ObjectStatus::ApprovalPending`: 承認待ち
+- `ObjectStatus::Reserved`: 公開予約
+- `ObjectStatus::Publish`: 公開
+- `ObjectStatus::Ended`: 終了
+
+```php
+use PowerCMSX\RESTfulAPI\ClientBuilder;
+use PowerCMSX\ObjectStatus;
+
+$data = [
+    'title' => 'APIのテスト',
+    'basename' => 'api_test',
+    'status' => ObjectStatus::ApprovalPending->value, // 2が出力され承認待ちになる
+];
+$entry = $client->createObject('entry', 15, $data);
+```
+
+同様に、`PowerCMSX\ObjectEnabled`を利用すると有効・無効の値が取得できます。
+
+- `ObjectEnabled::Disable`: 無効
+- `ObjectEnabled::Enable`: 有効

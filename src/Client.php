@@ -7,6 +7,8 @@ namespace PowerCMSX\RESTfulAPI;
 require_once 'enums' . DIRECTORY_SEPARATOR . 'ApiMethod.php';
 require_once 'enums' . DIRECTORY_SEPARATOR . 'ContactMethod.php';
 require_once 'enums' . DIRECTORY_SEPARATOR . 'HttpMethod.php';
+require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectStatus.php';
+require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectEnabled.php';
 
 use stdClass;
 

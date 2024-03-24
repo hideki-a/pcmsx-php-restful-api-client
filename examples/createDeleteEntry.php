@@ -11,6 +11,7 @@ require_once __DIR__ . DS . '..' . DS . 'vendor' . DS . 'autoload.php';
 Dotenv\Dotenv::createImmutable(__DIR__ . DS . '..' . DS)->load();
 
 use PowerCMSX\RESTfulAPI\ClientBuilder;
+use PowerCMSX\ObjectStatus;
 
 $client = ClientBuilder::create()
     ->setApplicationUrl($_ENV['CMS_API_URL'])
@@ -22,6 +23,7 @@ $data = [
     'title' => 'APIのテスト',
     'text' => $now->format('Y-m-d H:i:s'),
     'basename' => 'test_' . $now->format('ymdhis'),
+    'status' => ObjectStatus::ApprovalPending->value,
 ];
 $entry = $client->createObject('entry', 15, $data);
 
