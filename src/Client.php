@@ -12,6 +12,8 @@ use stdClass;
 
 class Client
 {
+    public const VERSION = '1.0.0';
+
     private $applicationUrl;
     private $apiVersion = 1;
     private $sslVerification = true;
