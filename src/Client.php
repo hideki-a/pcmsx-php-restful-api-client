@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PowerCMSX\RESTfulAPI;
 
 require_once 'enums' . DIRECTORY_SEPARATOR . 'ApiMethod.php';
+require_once 'enums' . DIRECTORY_SEPARATOR . 'ContactMethod.php';
 require_once 'enums' . DIRECTORY_SEPARATOR . 'HttpMethod.php';
 
 use stdClass;
@@ -261,5 +262,23 @@ class Client
     public function deleteObject(string $model, int $workspaceId, int $objectId): stdClass|array
     {
         return $this->request($model, $workspaceId, ApiMethod::DELETE, [], true, $objectId);
+    }
+
+    /**
+     * フォーム投稿
+     *
+     * @param int $workspaceId ワークスペースID
+     * @param int $objectId オブジェクトID
+     * @param ContactMethod $method メソッド名
+     * @param array $data リクエストボディ
+     */
+    public function contact(
+        int $workspaceId,
+        int $formId,
+        ContactMethod $method,
+        array $data = []
+    ): stdClass|array {
+        $path = "/{$workspaceId}/contact/" . strtolower($method->name) . "/${formId}";
+        return $this->runCurl($path, HttpMethod::POST, $data);
     }
 }

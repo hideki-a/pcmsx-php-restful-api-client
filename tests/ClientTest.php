@@ -6,11 +6,13 @@ require_once 'src/ClientBuilder.php';
 use PHPUnit\Framework\TestCase;
 use PowerCMSX\RESTfulAPI\ClientBuilder;
 use PowerCMSX\RESTfulAPI\HttpMethod;
+use PowerCMSX\RESTfulAPI\ContactMethod;
 
 class ClientTest extends TestCase
 {
     private $client;
     private static $objectId;
+    private static $contactToken;
 
     protected function setUp(): void
     {
@@ -86,5 +88,51 @@ class ClientTest extends TestCase
         $path = '/0/api_client_test';
         $response = $this->client->runCurl($path, HttpMethod::GET, [], false);
         $this->assertSame('カスタムエンドポイントです', $response->message);
+    }
+
+    public function test_問い合わせトークンの取得(): void
+    {
+        $response = $this->client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::TOKEN);
+        $this->assertTrue(property_exists($response, 'magic_token'));
+    }
+
+    public function test_問い合わせ投稿内容確認(): void
+    {
+        $data = [
+            'Identifier' => 'apidev_content_feedback',
+            'Language' => 'ja',
+            'ObjectId' => (int) $_ENV['TEST_ENTRY_ID'],
+            'Model' => 'entry',
+            'apidev_email' => 'abe@example.com',
+            'apidev_feedback' => '疑問が解消できる記事でした。',
+        ];
+        $response = $this->client->contact(
+            $_ENV['CMS_WORKSPACE_ID'],
+            $_ENV['TEST_FORM_ID'],
+            ContactMethod::CONFIRM,
+            $data
+        );
+        $this->assertTrue(property_exists($response, 'magic_token'));
+        self::$contactToken = $response->magic_token;
+    }
+
+    public function test_問い合わせ送信(): void
+    {
+        $data = [
+            'Identifier' => 'apidev_content_feedback',
+            'Language' => 'ja',
+            'ObjectId' => (int) $_ENV['TEST_ENTRY_ID'],
+            'Model' => 'entry',
+            "MagicToken" => self::$contactToken,
+            'apidev_email' => 'abe@example.com',
+            'apidev_feedback' => '疑問が解消できる記事でした。',
+        ];
+        $response = $this->client->contact(
+            $_ENV['CMS_WORKSPACE_ID'],
+            $_ENV['TEST_FORM_ID'],
+            ContactMethod::SUBMIT,
+            $data
+        );
+        $this->assertTrue(property_exists($response, 'Success'));
     }
 }

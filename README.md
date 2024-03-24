@@ -106,3 +106,20 @@ cURL関数を実行します。プラグインで追加したエンドポイン�
 - method: HttpMethod HTTPメソッド（必須）
 - data: array リクエストボディまたはクエリストリングの値（必須）
 - useAuthentication: bool 認証を実行するか否か
+
+### contact
+
+フォーム投稿を実行します。
+
+#### 引数
+
+- workspaceId: int ワークスペースID（必須）
+- id: int オブジェクトID（必須）
+- method: ContactMethod コンタクトメソッド（必須）
+- data: object リクエストボディ
+
+ContactMethodは以下から選択します。
+
+- トークンの取得: ContactMethod::TOKEN
+- 投稿内容の確認: ContactMethod::CONFIRM
+- 投稿内容の送信: ContactMethod::SUBMIT
