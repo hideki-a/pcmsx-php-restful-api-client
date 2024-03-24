@@ -107,6 +107,16 @@ cURL関数を実行します。プラグインで追加したエンドポイン�
 - data: array リクエストボディまたはクエリストリングの値（必須）
 - useAuthentication: bool 認証を実行するか否か
 
+### search
+
+全文検索を実行します。
+
+#### 引数
+
+- model: string モデル（必須）
+- workspaceId: int ワークスペースID（必須）
+- data: array 検索パラメータ（必須）
+
 ### contact
 
 フォーム投稿を実行します。

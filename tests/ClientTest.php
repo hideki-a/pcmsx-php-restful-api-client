@@ -90,6 +90,15 @@ class ClientTest extends TestCase
         $this->assertSame('カスタムエンドポイントです', $response->message);
     }
 
+    public function test_全文検索(): void
+    {
+        $data = [
+            'query' => 'テスト',
+        ];
+        $response = $this->client->search('entry', $_ENV['CMS_WORKSPACE_ID'], $data);
+        $this->assertGreaterThan(0, $response->totalResult);
+    }
+
     public function test_問い合わせトークンの取得(): void
     {
         $response = $this->client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::TOKEN);

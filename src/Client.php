@@ -265,6 +265,18 @@ class Client
     }
 
     /**
+     * 全文検索
+     *
+     * @param string $model モデル名
+     * @param int $workspaceId ワークスペースID
+     * @param array $data 検索パラメータ
+     */
+    public function search(string $model, int $workspaceId, array $data): stdClass|array {
+        $path = "/{$workspaceId}/{$model}/search";
+        return $this->runCurl($path, HttpMethod::GET, $data);
+    }
+
+    /**
      * フォーム投稿
      *
      * @param int $workspaceId ワークスペースID
