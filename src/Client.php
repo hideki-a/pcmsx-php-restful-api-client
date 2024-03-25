@@ -14,7 +14,7 @@ use stdClass;
 
 class Client
 {
-    public const VERSION = '1.0.1';
+    public const VERSION = '1.0.2';
 
     private $applicationUrl;
     private $apiVersion = 1;
