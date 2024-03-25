@@ -6,10 +6,10 @@ namespace PowerCMSX\RESTfulAPI;
 
 enum ApiMethod
 {
-    case DELETE;
-    case GET;
-    case INSERT;
-    case LIST;
-    case UPDATE;
-    case SCHEME;
+    case Delete;
+    case Get;
+    case Insert;
+    case List;
+    case Update;
+    case Scheme;
 }

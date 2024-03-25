@@ -24,10 +24,10 @@ $data = [
     'apidev_email' => 'abe@example.com',
     'apidev_feedback' => '疑問が解消できる記事でした。',
 ];
-$response = $client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::CONFIRM, $data);
+$response = $client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::Confirm, $data);
 
 if (property_exists($response, 'magic_token')) {
     $token = $response->magic_token;
     $data['MagicToken'] = $token;
-    $response = $client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::SUBMIT, $data);
+    $response = $client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::Submit, $data);
 }

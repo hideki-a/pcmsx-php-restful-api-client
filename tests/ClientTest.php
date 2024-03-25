@@ -101,7 +101,7 @@ class ClientTest extends TestCase
 
     public function test_問い合わせトークンの取得(): void
     {
-        $response = $this->client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::TOKEN);
+        $response = $this->client->contact($_ENV['CMS_WORKSPACE_ID'], $_ENV['TEST_FORM_ID'], ContactMethod::Token);
         $this->assertTrue(property_exists($response, 'magic_token'));
     }
 
@@ -118,7 +118,7 @@ class ClientTest extends TestCase
         $response = $this->client->contact(
             $_ENV['CMS_WORKSPACE_ID'],
             $_ENV['TEST_FORM_ID'],
-            ContactMethod::CONFIRM,
+            ContactMethod::Confirm,
             $data
         );
         $this->assertTrue(property_exists($response, 'magic_token'));
@@ -139,7 +139,7 @@ class ClientTest extends TestCase
         $response = $this->client->contact(
             $_ENV['CMS_WORKSPACE_ID'],
             $_ENV['TEST_FORM_ID'],
-            ContactMethod::SUBMIT,
+            ContactMethod::Submit,
             $data
         );
         $this->assertTrue(property_exists($response, 'Success'));

@@ -130,9 +130,9 @@ cURL関数を実行します。プラグインで追加したエンドポイン�
 
 ContactMethodは以下から選択します。
 
-- トークンの取得: ContactMethod::TOKEN
-- 投稿内容の確認: ContactMethod::CONFIRM
-- 投稿内容の送信: ContactMethod::SUBMIT
+- トークンの取得: ContactMethod::Token
+- 投稿内容の確認: ContactMethod::Confirm
+- 投稿内容の送信: ContactMethod::Submit
 
 ## 補足
 

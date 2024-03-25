@@ -6,7 +6,7 @@ namespace PowerCMSX\RESTfulAPI;
 
 enum ContactMethod
 {
-    case TOKEN;
-    case CONFIRM;
-    case SUBMIT;
+    case Token;
+    case Confirm;
+    case Submit;
 }

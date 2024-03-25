@@ -149,7 +149,7 @@ class Client
     {
         $path = "/{$workspaceId}/{$model}/" . strtolower($apiMethod->name);
 
-        if (in_array($apiMethod, [ApiMethod::GET, ApiMethod::UPDATE, ApiMethod::DELETE])) {
+        if (in_array($apiMethod, [ApiMethod::Get, ApiMethod::Update, ApiMethod::Delete])) {
             if ($objectId) {
                 $path .= "/{$objectId}";
             }
@@ -168,7 +168,7 @@ class Client
     ): stdClass|array {
         $httpMethod = HttpMethod::POST;
 
-        if ($apiMethod === ApiMethod::LIST || $apiMethod === ApiMethod::GET) {
+        if ($apiMethod === ApiMethod::List || $apiMethod === ApiMethod::Get) {
             $httpMethod = HttpMethod::GET;
         }
 
@@ -197,7 +197,7 @@ class Client
         array $data = [],
         bool $useAuthentication = false
     ): stdClass|array {
-        return $this->request($model, $workspaceId, ApiMethod::LIST, $data, $useAuthentication);
+        return $this->request($model, $workspaceId, ApiMethod::List, $data, $useAuthentication);
     }
 
     /**
@@ -228,7 +228,7 @@ class Client
             $data['cols'] = implode(',', $cols);
         }
 
-        return $this->request($model, $workspaceId, ApiMethod::GET, $data, $useAuthentication, $objectId);
+        return $this->request($model, $workspaceId, ApiMethod::Get, $data, $useAuthentication, $objectId);
     }
 
     /**
@@ -240,7 +240,7 @@ class Client
      */
     public function createObject(string $model, int $workspaceId, array $data): stdClass|array
     {
-        return $this->request($model, $workspaceId, ApiMethod::INSERT, $data, true);
+        return $this->request($model, $workspaceId, ApiMethod::Insert, $data, true);
     }
 
     /**
@@ -253,7 +253,7 @@ class Client
      */
     public function updateObject(string $model, int $workspaceId, int $objectId, array $data): stdClass|array
     {
-        return $this->request($model, $workspaceId, ApiMethod::UPDATE, $data, true, $objectId);
+        return $this->request($model, $workspaceId, ApiMethod::Update, $data, true, $objectId);
     }
 
     /**
@@ -265,7 +265,7 @@ class Client
      */
     public function deleteObject(string $model, int $workspaceId, int $objectId): stdClass|array
     {
-        return $this->request($model, $workspaceId, ApiMethod::DELETE, [], true, $objectId);
+        return $this->request($model, $workspaceId, ApiMethod::Delete, [], true, $objectId);
     }
 
     /**
