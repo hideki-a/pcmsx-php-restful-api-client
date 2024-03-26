@@ -11,6 +11,7 @@ require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectStatus.php';
 require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectEnabled.php';
 
 use stdClass;
+use CurlHandle;
 
 class Client
 {
@@ -23,6 +24,9 @@ class Client
     private $userName;
     private $password;
     private $token;
+    private $lastCurlResponseHeaders = null;
+    private $useCookie = false;
+    private $cookie = null;
 
     /**
      * アプリケーションURLの設定
@@ -75,6 +79,39 @@ class Client
     }
 
     /**
+     * Cookie設定
+     *
+     * `true`の場合、Cookie(pt-api-user)が利用できます。
+     *
+     * @param bool $value
+     */
+    public function setUseCookie(bool $value = false): Client
+    {
+        $this->useCookie = $value;
+        return $this;
+    }
+
+    /**
+     * 最後に実行したcURL関数のレスポンスヘッダーの取得
+     *
+     * @return array レスポンスヘッダー
+     */
+    public function getLastCurlResponseHeader(): array
+    {
+        return $this->lastCurlResponseHeaders;
+    }
+
+    /**
+     * Cookie(pt-api-user)の取得
+     *
+     * @return array Cookieデータ
+     */
+    public function getCookie(): array
+    {
+        return $this->cookie;
+    }
+
+    /**
      * cURL関数の実行
      *
      * @param string $path パス
@@ -113,6 +150,17 @@ class Client
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        $responseHeaders = [];
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function (CurlHandle $ch, string $header) use (&$responseHeaders) {
+            $data = explode(':', $header);
+            if (count($data) >= 2) {
+                $responseHeaders[trim($data[0])] = trim($data[1]);
+            }
+
+            return strlen($header);
+        });
+
         $queryString = '';
         if ($method === HttpMethod::GET) {
             $queryString = count($data) ? '?' . http_build_query($data) : '';
@@ -120,6 +168,9 @@ class Client
         curl_setopt($ch, CURLOPT_URL, "{$this->applicationUrl}/v{$this->apiVersion}{$path}{$queryString}");
 
         $response = curl_exec($ch);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $responseBody = substr($response, $headerSize);
+        $this->lastCurlResponseHeaders = $responseHeaders;
 
         if (curl_errno($ch)) {
             throw new \Exception(curl_error($ch));
@@ -127,7 +178,7 @@ class Client
 
         curl_close($ch);
 
-        return json_decode($response, $this->responseAssociative);
+        return json_decode($responseBody, $this->responseAssociative);
     }
 
     private function authentication(): void
@@ -140,6 +191,18 @@ class Client
 
         if (property_exists($response, 'access_token')) {
             $this->token = $response;
+
+            if ($this->useCookie) {
+                foreach ($this->lastCurlResponseHeaders as $key => $value) {
+                    if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
+                        preg_match('/^pt-api-user=([^;]+); expires=(.*)$/', $value, $matches);
+                        $this->cookie = [
+                            'value' => $matches[1],
+                            'expires' => $matches[2],
+                        ];
+                    }
+                }
+            }
         } else {
             throw new \Exception($response->message);
         }
