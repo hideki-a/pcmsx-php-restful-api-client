@@ -129,13 +129,11 @@ class Client
             throw new \Exception('Application URL must be required.');
         }
 
-        $headers = [
-            'Content-Type: application/json',
-        ];
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->sslVerification);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // メソッド・送信データのセット
         if ($method !== HttpMethod::GET) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             if ($method === HttpMethod::POST) {
@@ -145,11 +143,16 @@ class Client
             }
         }
 
+        // リクエストヘッダー
+        $headers = [
+            'Content-Type: application/json',
+        ];
         if ($useAuthentication) {
             $headers[] = "X-PCMSX-Authorization: {$this->token->access_token}";
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        // レスポンスヘッダー
         $responseHeaders = [];
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, function (CurlHandle $ch, string $header) use (&$responseHeaders) {
@@ -161,12 +164,14 @@ class Client
             return strlen($header);
         });
 
+        // クエリストリングの作成とURLの設定
         $queryString = '';
         if ($method === HttpMethod::GET) {
             $queryString = count($data) ? '?' . http_build_query($data) : '';
         }
         curl_setopt($ch, CURLOPT_URL, "{$this->applicationUrl}/v{$this->apiVersion}{$path}{$queryString}");
 
+        // cURL実行
         $response = curl_exec($ch);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $responseBody = substr($response, $headerSize);
@@ -338,7 +343,8 @@ class Client
      * @param int $workspaceId ワークスペースID
      * @param array $data 検索パラメータ
      */
-    public function search(string $model, int $workspaceId, array $data): stdClass|array {
+    public function search(string $model, int $workspaceId, array $data): stdClass|array
+    {
         $path = "/{$workspaceId}/{$model}/search";
         return $this->runCurl($path, HttpMethod::GET, $data);
     }
@@ -357,7 +363,7 @@ class Client
         ContactMethod $method,
         array $data = []
     ): stdClass|array {
-        $path = "/{$workspaceId}/contact/" . strtolower($method->name) . "/${formId}";
+        $path = "/{$workspaceId}/contact/" . strtolower($method->name) . "/{$formId}";
         return $this->runCurl($path, HttpMethod::POST, $data);
     }
 }
