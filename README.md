@@ -163,3 +163,26 @@ $entry = $client->createObject('entry', 15, $data);
 
 - `ObjectEnabled::Disable`: 無効
 - `ObjectEnabled::Enable`: 有効
+
+### アセット等のバイナリデータ（ファイル）のData URIスキーム変換
+
+`AssetUtilities::encodeBase64`メソッドにファイルパスを渡すとData URIスキームに変換します。出力された値を`Data`にセットしてください。
+
+```php
+require_once '/path/to/powercmsx/app/lib/Prototype/class.PTUtil.php';
+require_once 'src/classes/AssetUtilities.php';
+
+use PowerCMSX\RESTfulAPI\AssetUtilities;
+
+$data = [
+    'assets' => [
+        [
+            'file' => [
+                'Label' => 'ラベルまたは代替テキスト',
+                'Data'  => AssetUtilities::encodeBase64(__DIR__ . '/assets/test.png'),
+                'Path'  => '%r/assets/test.png',
+            ]
+        ]
+    ]
+];
+```
