@@ -27,7 +27,7 @@ class AssetUtilities
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $pcmsxMimeTypes = PTUtil::mime_types();
-        $mimeType = $pcmsxMimeTypes[$extension]; // TODO: アップロードできる形式なのにMIMEタイプが取れないケースが存在するか確認
+        $mimeType = $pcmsxMimeTypes[$extension] ?? 'text/plain';
 
         return "data:{$mimeType};base64,{$base64Data}";
     }
