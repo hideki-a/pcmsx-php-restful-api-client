@@ -160,7 +160,7 @@ class Client
         $responseHeaders = [];
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, function (\CurlHandle $ch, string $header) use (&$responseHeaders) {
-            $data = explode(':', $header);
+            $data = explode(': ', $header);
             if (count($data) >= 2) {
                 $responseHeaders[trim($data[0])] = trim($data[1]);
             }
@@ -190,8 +190,8 @@ class Client
         if ($this->useCookie) {
             foreach ($responseHeaders as $key => $value) {
                 if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
-                    preg_match('/^pt-api-user=([^;]+); expires=(.*)$/', $value, $matches);
                     $this->cookie = [
+                    preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
                         'value' => $matches[1],
                         'expires' => $matches[2],
                     ];
