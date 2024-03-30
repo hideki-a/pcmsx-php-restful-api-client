@@ -152,6 +152,6 @@ class ClientTest extends TestCase
             ->setUseCookie(true);
         $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_DRAFT_ENTRY_ID'], true);
         $cookie = $this->client->getCookie();
-        $this->assertArrayHasKey('value', $cookie);
+        $this->assertObjectHasProperty('value', $cookie);
     }
 }

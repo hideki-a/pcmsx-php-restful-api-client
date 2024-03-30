@@ -16,16 +16,16 @@ class Client
 {
     public const VERSION = '1.0.2';
 
-    private $applicationUrl;
-    private $apiVersion = 1;
-    private $sslVerification = true;
-    private $responseAssociative = false;
-    private $userName;
-    private $password;
-    private $token;
-    private $lastCurlResponseHeaders = null;
-    private $useCookie = false;
-    private $cookie = null;
+    private string $applicationUrl;
+    private int $apiVersion = 1;
+    private bool $sslVerification = true;
+    private bool $responseAssociative = false;
+    private string $userName;
+    private string $password;
+    private ?stdClass $token = null;
+    private ?array $lastCurlResponseHeaders = null;
+    private bool $useCookie = false;
+    private ?stdClass $cookie = null;
 
     /**
      * アプリケーションURLの設定
@@ -95,7 +95,7 @@ class Client
      *
      * @return array レスポンスヘッダー
      */
-    public function getLastCurlResponseHeader(): array
+    public function getLastCurlResponseHeader(): ?array
     {
         return $this->lastCurlResponseHeaders;
     }
@@ -103,9 +103,9 @@ class Client
     /**
      * Cookie(pt-api-user)の取得
      *
-     * @return array Cookieデータ
+     * @return stdClass Cookieデータ
      */
-    public function getCookie(): array
+    public function getCookie(): ?stdClass
     {
         return $this->cookie;
     }
@@ -125,10 +125,14 @@ class Client
         bool $useAuthentication = false
     ): stdClass|array {
         if (!$this->applicationUrl) {
-            throw new \Exception('Application URL must be required.');
+            exit('Application URL must be required.');
         }
 
         $ch = curl_init();
+        if (!$ch) {  /** @phpstan-ignore-line */
+            exit('Could not initialize cURL session.');
+        }
+
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->sslVerification);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -179,7 +183,9 @@ class Client
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new \Exception(curl_error($ch));
+            exit(curl_error($ch));
+        } elseif (!$response) {
+            exit('cURL session execution failed.');
         }
 
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -190,8 +196,8 @@ class Client
         if ($this->useCookie) {
             foreach ($responseHeaders as $key => $value) {
                 if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
-                    $this->cookie = [
                     preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
+                    $this->cookie = (object) [
                         'value' => $matches[1],
                         'expires' => $matches[2],
                     ];
@@ -211,11 +217,12 @@ class Client
             'password' => $this->password,
         ];
         $response = $this->runCurl('/authentication', HttpMethod::POST, $data);
+        $response = (object) $response;
 
         if (property_exists($response, 'access_token')) {
             $this->token = $response;
         } else {
-            throw new \Exception($response->message);
+            exit($response->message);
         }
     }
 
@@ -285,6 +292,7 @@ class Client
         array $cols = []
     ): stdClass|array {
         $data = [];
+        $objectId = null;
 
         if (is_int($query)) {
             $objectId = $query;
@@ -353,7 +361,7 @@ class Client
      * フォーム投稿
      *
      * @param int $workspaceId ワークスペースID
-     * @param int $objectId オブジェクトID
+     * @param int $formId フォームID
      * @param ContactMethod $method メソッド名
      * @param array $data リクエストボディ
      */

@@ -17,7 +17,13 @@ class AssetUtilities
     public static function encodeBase64(string $filePath): string
     {
         $imageInfo = getimagesize($filePath);
-        $base64Data = base64_encode(file_get_contents($filePath));
+        $data = file_get_contents($filePath);
+
+        if (!$data) {
+            exit('Could not open file at specified path.');
+        }
+
+        $base64Data = base64_encode($data);
 
         if ($imageInfo) {
             $imageType = $imageInfo[2];
@@ -26,7 +32,7 @@ class AssetUtilities
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        $pcmsxMimeTypes = PTUtil::mime_types();
+        $pcmsxMimeTypes = PTUtil::mime_types(); /** @phpstan-ignore-line */
         $mimeType = $pcmsxMimeTypes[$extension] ?? 'text/plain';
 
         return "data:{$mimeType};base64,{$base64Data}";
