@@ -134,6 +134,25 @@ ContactMethodは以下から選択します。
 - 投稿内容の確認: ContactMethod::Confirm
 - 投稿内容の送信: ContactMethod::Submit
 
+### requestCustomEndpoint
+
+カスタムエンドポイントへのリクエストを実行します。
+
+#### 引数
+
+- endpointName: string エンドポイント名（必須）
+- workspaceId: int ワークスペースID（必須）
+- method: HttpMethod HTTPメソッド（必須）
+- data: array リクエストボディまたはクエリストリングの値
+- useAuthentication: bool 認証を実行するか否か
+
+HttpMethodは以下から選択します。
+
+- GET: HttpMethod::GET
+- POST: HttpMethod::POST
+- PUT: HttpMethod::PUT
+- DELETE: HttpMethod::DELETE
+
 ## 補足
 
 ### ステータスの設定

@@ -367,4 +367,24 @@ class Client
         $path = "/{$workspaceId}/contact/" . strtolower($method->name) . "/{$formId}";
         return $this->runCurl($path, HttpMethod::POST, $data);
     }
+
+    /**
+     * カスタムエンドポイントへのリクエスト
+     *
+     * @param string $endpointName エンドポイント名
+     * @param int $workspaceId ワークスペースID
+     * @param HttpMethod $method HTTPメソッド
+     * @param array $data リクエストボディまたはクエリストリングの値
+     * @param bool $useAuthentication 認証を利用するか否か
+     */
+    public function requestCustomEndpoint(
+        string $endpointName,
+        int $workspaceId,
+        HttpMethod $method,
+        array $data = [],
+        bool $useAuthentication = false,
+    ): stdClass|array {
+        $path = "/{$workspaceId}/{$endpointName}";
+        return $this->runCurl($path, $method, $data, $useAuthentication);
+    }
 }

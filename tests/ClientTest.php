@@ -85,8 +85,8 @@ class ClientTest extends TestCase
 
     public function test_カスタムエンドポイントへのアクセス(): void
     {
-        $path = '/0/api_client_test';
-        $response = $this->client->runCurl($path, HttpMethod::GET, [], false);
+        $endpointName = 'api_client_test';
+        $response = $this->client->requestCustomEndpoint($endpointName, 0, HttpMethod::GET, [], false);
         $this->assertSame('カスタムエンドポイントです', $response->message);
     }
 

@@ -16,7 +16,7 @@ use PowerCMSX\RESTfulAPI\HttpMethod;
 $client = ClientBuilder::create()
     ->setApplicationUrl($_ENV['CMS_API_URL']);
 
-$path = '/0/api_client_test'; // /ワークスペースID/プラグインで定義したエンドポイント名
-$response = $client->runCurl($path, HttpMethod::GET, [], false);
+$endpointName = 'api_client_test'; // /ワークスペースID/プラグインで定義したエンドポイント名
+$response = $client->requestCustomEndpoint($endpointName, 0, HttpMethod::GET, [], false);
 
 var_dump($response->message);
