@@ -147,7 +147,12 @@ class Client
             'Content-Type: application/json',
         ];
         if ($useAuthentication) {
-            $headers[] = "X-PCMSX-Authorization: {$this->token->access_token}";
+            if (!$this->token || $this->token->expires_in < time()) {
+                $this->authentication();
+            }
+
+            $token = $this->token ? $this->token->access_token : '';
+            $headers[] = "X-PCMSX-Authorization: {$token}";
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -242,12 +247,6 @@ class Client
         }
 
         $path = $this->buildPath($workspaceId, $model, $apiMethod, $objectId);
-
-        if ($useAuthentication) {
-            if (!$this->token || $this->token->expires_in < time()) {
-                $this->authentication();
-            }
-        }
 
         return $this->runCurl($path, $httpMethod, $data, $useAuthentication);
     }
