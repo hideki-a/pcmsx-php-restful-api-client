@@ -205,3 +205,15 @@ $data = [
     ]
 ];
 ```
+
+### APIとの接続が確立しない場合の調査方法
+
+オブジェクトを操作するメソッドをtry...catch文で囲むと、cURL操作のエラーメッセージが取得できる可能性があります。
+
+```php
+try {
+    $entries = $client->listObject('entry', 4, $data);
+} catch (Exception $error) {
+    echo $error->getMessage() . PHP_EOL; // → 例えば「SSL certificate problem: self-signed certificate」のようなメッセージ
+}
+```

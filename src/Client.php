@@ -11,6 +11,7 @@ require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectStatus.php';
 require_once 'enums' . DIRECTORY_SEPARATOR . 'ObjectEnabled.php';
 
 use stdClass;
+use Exception;
 
 class Client
 {
@@ -183,14 +184,18 @@ class Client
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            exit(curl_error($ch));
-        } elseif (!$response) {
-            exit('cURL session execution failed.');
+            throw new Exception(curl_error($ch));
         }
 
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $responseBody = substr($response, $headerSize);
         $this->lastCurlResponseHeaders = $responseHeaders;
+        if (!@json_decode($responseBody)) {
+            if ($responseBody) {
+                throw new Exception($responseBody);
+            }
+            throw new Exception('cURL session execution failed.');
+        }
 
         // Cookie取得
         if ($this->useCookie) {
