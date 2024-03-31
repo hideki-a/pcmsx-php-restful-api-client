@@ -111,6 +111,50 @@ class Client
         return $this->cookie;
     }
 
+    private function setCookie(array $responseHeaders): void
+    {
+        foreach ($responseHeaders as $key => $value) {
+            if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
+                preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
+                $this->cookie = (object) [
+                    'value' => $matches[1],
+                    'expires' => $matches[2],
+                ];
+            }
+        }
+    }
+
+    private function makeRequestHeaders(bool $useAuthentication = false): array
+    {
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        if ($useAuthentication) {
+            if (!$this->token || $this->token->expires_in < time()) {
+                $this->authentication();
+            }
+
+            $token = $this->token ? $this->token->access_token : '';
+            $headers[] = "X-PCMSX-Authorization: {$token}";
+        }
+
+        return $headers;
+    }
+
+    private function setCurlResponseHeaderOption(\CurlHandle &$ch, array &$responseHeaders): void
+    {
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function (\CurlHandle $ch, string $header) use (&$responseHeaders) {
+            $data = explode(': ', $header);
+            if (count($data) >= 2) {
+                $responseHeaders[trim($data[0])] = trim($data[1]);
+            }
+
+            return strlen($header);
+        });
+    }
+
     /**
      * cURL関数の実行
      *
@@ -148,30 +192,12 @@ class Client
         }
 
         // リクエストヘッダー
-        $headers = [
-            'Content-Type: application/json',
-        ];
-        if ($useAuthentication) {
-            if (!$this->token || $this->token->expires_in < time()) {
-                $this->authentication();
-            }
-
-            $token = $this->token ? $this->token->access_token : '';
-            $headers[] = "X-PCMSX-Authorization: {$token}";
-        }
+        $headers = $this->makeRequestHeaders($useAuthentication);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // レスポンスヘッダー
         $responseHeaders = [];
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function (\CurlHandle $ch, string $header) use (&$responseHeaders) {
-            $data = explode(': ', $header);
-            if (count($data) >= 2) {
-                $responseHeaders[trim($data[0])] = trim($data[1]);
-            }
-
-            return strlen($header);
-        });
+        $this->setCurlResponseHeaderOption($ch, $responseHeaders);
 
         // クエリストリングの作成とURLの設定
         $queryString = '';
@@ -199,15 +225,7 @@ class Client
 
         // Cookie取得
         if ($this->useCookie) {
-            foreach ($responseHeaders as $key => $value) {
-                if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
-                    preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
-                    $this->cookie = (object) [
-                        'value' => $matches[1],
-                        'expires' => $matches[2],
-                    ];
-                }
-            }
+            $this->setCookie($responseHeaders);
         }
 
         curl_close($ch);
