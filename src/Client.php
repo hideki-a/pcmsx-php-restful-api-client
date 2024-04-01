@@ -15,7 +15,7 @@ use Exception;
 
 class Client
 {
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.1.1';
 
     private string $applicationUrl;
     private int $apiVersion = 1;
