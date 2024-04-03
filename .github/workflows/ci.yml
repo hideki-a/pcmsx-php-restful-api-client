@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  analyze:
+  Analyze_and_Test:
     runs-on: ubuntu-latest
 
     steps:
