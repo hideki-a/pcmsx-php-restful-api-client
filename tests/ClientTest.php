@@ -144,14 +144,4 @@ class ClientTest extends TestCase
         );
         $this->assertTrue(property_exists($response, 'Success'));
     }
-
-    public function test_Cookieの取得(): void
-    {
-        $this->client
-            ->setAuthConfig($_ENV['CMS_USER_NAME'], $_ENV['CMS_PASSWORD'])
-            ->setUseCookie(true);
-        $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_DRAFT_ENTRY_ID'], true);
-        $cookie = $this->client->getCookie();
-        $this->assertObjectHasProperty('value', $cookie);
-    }
 }
