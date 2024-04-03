@@ -26,5 +26,19 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
+      - name: Generate .env file
+        run: |
+          touch .env
+          echo "CMS_API_URL=${{ secrets.CMS_API_URL }}" >> .env
+          echo "CMS_USER_NAME=${{ secrets.CMS_USER_NAME }}" >> .env
+          echo "CMS_PASSWORD=${{ secrets.CMS_PASSWORD }}" >> .env
+          echo "CMS_WORKSPACE_ID=6" >> .env
+          echo "TEST_ENTRY_ID=672" >> .env
+          echo "TEST_DRAFT_ENTRY_ID=670" >> .env
+          echo "TEST_FORM_ID=2" >> .env
+
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --configuration phpstan.neon
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit tests/*.php
