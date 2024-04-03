@@ -23,7 +23,7 @@ class AssetUtilitiesTest extends TestCase
 
     public function test_ファイルの変換(): void
     {
-        if ($_ENV['PROTOTYPE_PATH']) {
+        if (array_key_exists('PROTOTYPE_PATH', $_ENV)) {
             require_once $_ENV['PROTOTYPE_PATH'] . '/lib/Prototype/class.PTUtil.php';
         } else {
             require_once 'powercmsx/PTUtil.php';
