@@ -114,7 +114,7 @@ class Client
     private function setCookie(array $responseHeaders): void
     {
         foreach ($responseHeaders as $key => $value) {
-            if ($key === 'Set-Cookie' && strpos($value, 'pt-api-user') === 0) {
+            if (strtolower($key) === 'set-cookie' && strpos($value, 'pt-api-user') === 0) {
                 preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
                 $this->cookie = (object) [
                     'value' => $matches[1],
