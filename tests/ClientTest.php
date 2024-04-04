@@ -20,6 +20,7 @@ class ClientTest extends TestCase
         $dotenv->load();
 
         $client = ClientBuilder::create()
+            ->setUseCookie($_ENV['CMS_API_USE_COOKIE'])
             ->setApplicationUrl($_ENV['CMS_API_URL']);
         $this->client = $client;
     }
@@ -143,5 +144,18 @@ class ClientTest extends TestCase
             $data
         );
         $this->assertTrue(property_exists($response, 'Success'));
+    }
+
+    public function test_Cookieの取得(): void
+    {
+        if ($_ENV['CMS_API_USE_COOKIE'] === 'false') {
+            $this->markTestSkipped('Skipping test because CMS_API_USE_COOKIE is not true.');
+        }
+
+        $this->client
+            ->setAuthConfig($_ENV['CMS_USER_NAME'], $_ENV['CMS_PASSWORD']);
+        $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_DRAFT_ENTRY_ID'], true);
+        $cookie = $this->client->getCookie();
+        $this->assertObjectHasProperty('value', $cookie);
     }
 }

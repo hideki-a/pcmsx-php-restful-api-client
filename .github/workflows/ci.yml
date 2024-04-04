@@ -33,6 +33,7 @@ jobs:
           echo "CMS_USER_NAME=${{ secrets.CMS_USER_NAME }}" >> .env
           echo "CMS_PASSWORD=${{ secrets.CMS_PASSWORD }}" >> .env
           echo "CMS_WORKSPACE_ID=6" >> .env
+          echo "CMS_API_USE_COOKIE=true" >> .env
           echo "TEST_ENTRY_ID=672" >> .env
           echo "TEST_DRAFT_ENTRY_ID=670" >> .env
           echo "TEST_FORM_ID=2" >> .env

@@ -137,6 +137,10 @@ class Client
 
             $token = $this->token ? $this->token->access_token : '';
             $headers[] = "X-PCMSX-Authorization: {$token}";
+
+            if ($this->useCookie && $this->cookie) {
+                $headers[] = "Cookie: pt-api-user={$this->cookie->value}";
+            }
         }
 
         return $headers;
