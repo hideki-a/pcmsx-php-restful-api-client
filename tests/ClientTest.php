@@ -42,11 +42,32 @@ class ClientTest extends TestCase
         $this->assertSame('サンプル記事です', $entry->title);
     }
 
+    public function test_ベースネームでオブジェクトの取得(): void
+    {
+        $entry = $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], 'sample_entry');
+        $this->assertSame('サンプル記事です', $entry->title);
+    }
+
+    public function test_colsを指定してオブジェクトの取得(): void
+    {
+        $entry = $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_ENTRY_ID'], false, ['title']);
+        $this->assertObjectHasProperty('title', $entry);
+        $this->assertTrue(!property_exists($entry, 'id'));
+    }
+
     public function test_公開以外のオブジェクトの取得(): void
     {
         $this->client->setAuthConfig($_ENV['CMS_USER_NAME'], $_ENV['CMS_PASSWORD']);
         $entry = $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_DRAFT_ENTRY_ID'], true);
         $this->assertSame('下書き記事です', $entry->title);
+    }
+
+    public function test_公開以外のオブジェクトの取得（連想配列形式）(): void
+    {
+        $this->client->setResponseAssociative(true);
+        $this->client->setAuthConfig($_ENV['CMS_USER_NAME'], $_ENV['CMS_PASSWORD']);
+        $entry = $this->client->getObject('entry', $_ENV['CMS_WORKSPACE_ID'], (int) $_ENV['TEST_DRAFT_ENTRY_ID'], true);
+        $this->assertSame('下書き記事です', $entry['title']);
     }
 
     public function test_オブジェクトの作成(): void
