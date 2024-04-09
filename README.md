@@ -60,7 +60,7 @@ var_dump($entry->title); // →記事タイトルが表示されます
 
 - model: string モデル（必須）
 - workspaceId: int ワークスペースID（必須）
-- data: array リクエストボディ（必須）
+- data: array クエリストリングの値
 - useAuthentication: bool 認証を実行するか否か
 
 ### getObject
