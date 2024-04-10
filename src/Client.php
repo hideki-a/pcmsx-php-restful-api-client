@@ -131,11 +131,11 @@ class Client
         ];
 
         if ($useAuthentication) {
-            if (!$this->token || $this->token->expires_in < time()) {
+            if ($this->token?->expires_in < time()) {
                 $this->authentication();
             }
 
-            $token = $this->token ? $this->token->access_token : '';
+            $token = $this->token?->access_token ?? '';
             $headers[] = "X-PCMSX-Authorization: {$token}";
 
             if ($this->useCookie && $this->cookie) {
