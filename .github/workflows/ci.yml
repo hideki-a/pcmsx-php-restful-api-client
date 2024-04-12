@@ -12,16 +12,20 @@ jobs:
   Analyze_and_Test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
+      - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         env:
           runner: self-hosted
         with:
-          php-version: '8.1'
+          php-version: ${{ matrix.php-version }}
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
