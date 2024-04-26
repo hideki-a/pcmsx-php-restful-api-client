@@ -24,7 +24,10 @@ class Client
     private string $userName;
     private string $password;
     private ?stdClass $token = null;
+
+    /** @var ?array<string, mixed> $lastCurlResponseHeaders */
     private ?array $lastCurlResponseHeaders = null;
+
     private bool $useCookie = false;
     private ?stdClass $cookie = null;
 
@@ -94,7 +97,7 @@ class Client
     /**
      * 最後に実行したcURL関数のレスポンスヘッダーの取得
      *
-     * @return array レスポンスヘッダー
+     * @return array<string, mixed> レスポンスヘッダー
      */
     public function getLastCurlResponseHeader(): ?array
     {
@@ -111,6 +114,11 @@ class Client
         return $this->cookie;
     }
 
+    /**
+     * Cookieをセットする
+     *
+     * @param array<string, string> $responseHeaders レスポンスヘッダー
+     */
     private function setCookie(array $responseHeaders): void
     {
         foreach ($responseHeaders as $key => $value) {
@@ -124,6 +132,12 @@ class Client
         }
     }
 
+    /**
+     * リクエストヘッダーの作成
+     *
+     * @param bool $useAuthentication 認証を利用するか否か
+     * @return string[] リクエストヘッダー
+     */
     private function makeRequestHeaders(bool $useAuthentication = false): array
     {
         $headers = [
@@ -146,6 +160,12 @@ class Client
         return $headers;
     }
 
+    /**
+     * レスポンスヘッダーの取り出し
+     *
+     * @param \CurlHandle $ch CurlHandle
+     * @param array<string, string> $responseHeaders レスポンスヘッダー
+     */
     private function setCurlResponseHeaderOption(\CurlHandle &$ch, array &$responseHeaders): void
     {
         curl_setopt($ch, CURLOPT_HEADER, true);
@@ -164,7 +184,7 @@ class Client
      *
      * @param string $path パス
      * @param HttpMethod $method HTTPメソッド
-     * @param array $data リクエストボディまたはクエリストリングの値
+     * @param array<string, mixed> $data リクエストボディまたはクエリストリングの値
      * @param bool $useAuthentication 認証を利用するか否か
      */
     public function runCurl(
@@ -172,7 +192,7 @@ class Client
         HttpMethod $method,
         array $data,
         bool $useAuthentication = false
-    ): stdClass|array {
+    ): mixed {
         if (!$this->applicationUrl) {
             exit('Application URL must be required.');
         }
@@ -215,6 +235,8 @@ class Client
 
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
+        } elseif (is_bool($response)) {
+            throw new Exception('cURL session execution failed.');
         }
 
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -237,6 +259,9 @@ class Client
         return json_decode($responseBody, $this->responseAssociative);
     }
 
+    /**
+     * 認証の実行
+     */
     private function authentication(): void
     {
         $data = [
@@ -253,6 +278,14 @@ class Client
         }
     }
 
+    /**
+     * リクエストパスの構築
+     *
+     * @param int $workspaceId ワークスペースID
+     * @param string $model モデル名
+     * @param ApiMethod $apiMethod APIメソッド
+     * @param int $objectId オブジェクトID
+     */
     private function buildPath(int $workspaceId, string $model, ApiMethod $apiMethod, ?int $objectId): string
     {
         $path = "/{$workspaceId}/{$model}/" . strtolower($apiMethod->name);
@@ -266,6 +299,17 @@ class Client
         return $path;
     }
 
+    /**
+     * リクエスト処理の実行
+     * 引数に基づきHTTPメソッド・パスを決定しrunCurlを呼び出す
+     *
+     * @param string $model モデル名
+     * @param int $workspaceId ワークスペースID
+     * @param ApiMethod $apiMethod メソッド
+     * @param array<string, mixed> $data パラメータ
+     * @param bool $useAuthentication 認証を利用するか否か
+     * @param int $objectId オブジェクトID
+     */
     private function request(
         string $model,
         int $workspaceId,
@@ -273,7 +317,7 @@ class Client
         array $data,
         bool $useAuthentication = false,
         int $objectId = null
-    ): stdClass|array {
+    ): mixed {
         $httpMethod = HttpMethod::POST;
 
         if ($apiMethod === ApiMethod::List || $apiMethod === ApiMethod::Get) {
@@ -290,7 +334,7 @@ class Client
      *
      * @param string $model モデル名
      * @param int $workspaceId ワークスペースID
-     * @param array $data パラメータ
+     * @param array<string, mixed> $data パラメータ
      * @param bool $useAuthentication 認証を利用するか否か
      */
     public function listObject(
@@ -298,7 +342,7 @@ class Client
         int $workspaceId,
         array $data = [],
         bool $useAuthentication = false
-    ): stdClass|array {
+    ): mixed {
         return $this->request($model, $workspaceId, ApiMethod::List, $data, $useAuthentication);
     }
 
@@ -309,7 +353,7 @@ class Client
      * @param int $workspaceId ワークスペースID
      * @param int|string $query オブジェクトIDもしくはベースネーム
      * @param bool $useAuthentication 認証を利用するか否か
-     * @param array $cols 取得するカラム
+     * @param string[] $cols 取得するカラム
      */
     public function getObject(
         string $model,
@@ -317,7 +361,7 @@ class Client
         int|string $query,
         bool $useAuthentication = false,
         array $cols = []
-    ): stdClass|array {
+    ): mixed {
         $data = [];
         $objectId = null;
 
@@ -339,9 +383,9 @@ class Client
      *
      * @param string $model モデル名
      * @param int $workspaceId ワークスペースID
-     * @param array $data リクエストボディ
+     * @param array<string, mixed> $data リクエストボディ
      */
-    public function createObject(string $model, int $workspaceId, array $data): stdClass|array
+    public function createObject(string $model, int $workspaceId, array $data): mixed
     {
         return $this->request($model, $workspaceId, ApiMethod::Insert, $data, true);
     }
@@ -352,9 +396,9 @@ class Client
      * @param string $model モデル名
      * @param int $workspaceId ワークスペースID
      * @param int $objectId オブジェクトID
-     * @param array $data リクエストボディ
+     * @param array<string, mixed> $data リクエストボディ
      */
-    public function updateObject(string $model, int $workspaceId, int $objectId, array $data): stdClass|array
+    public function updateObject(string $model, int $workspaceId, int $objectId, array $data): mixed
     {
         return $this->request($model, $workspaceId, ApiMethod::Update, $data, true, $objectId);
     }
@@ -366,7 +410,7 @@ class Client
      * @param int $workspaceId ワークスペースID
      * @param int $objectId オブジェクトID
      */
-    public function deleteObject(string $model, int $workspaceId, int $objectId): stdClass|array
+    public function deleteObject(string $model, int $workspaceId, int $objectId): mixed
     {
         return $this->request($model, $workspaceId, ApiMethod::Delete, [], true, $objectId);
     }
@@ -376,9 +420,9 @@ class Client
      *
      * @param string $model モデル名
      * @param int $workspaceId ワークスペースID
-     * @param array $data 検索パラメータ
+     * @param array<string, mixed> $data 検索パラメータ
      */
-    public function search(string $model, int $workspaceId, array $data): stdClass|array
+    public function search(string $model, int $workspaceId, array $data): mixed
     {
         $path = "/{$workspaceId}/{$model}/search";
         return $this->runCurl($path, HttpMethod::GET, $data);
@@ -390,14 +434,14 @@ class Client
      * @param int $workspaceId ワークスペースID
      * @param int $formId フォームID
      * @param ContactMethod $method メソッド名
-     * @param array $data リクエストボディ
+     * @param array<string, mixed> $data リクエストボディ
      */
     public function contact(
         int $workspaceId,
         int $formId,
         ContactMethod $method,
         array $data = []
-    ): stdClass|array {
+    ): mixed {
         $path = "/{$workspaceId}/contact/" . strtolower($method->name) . "/{$formId}";
         return $this->runCurl($path, HttpMethod::POST, $data);
     }
@@ -408,7 +452,7 @@ class Client
      * @param string $endpointName エンドポイント名
      * @param int $workspaceId ワークスペースID
      * @param HttpMethod $method HTTPメソッド
-     * @param array $data リクエストボディまたはクエリストリングの値
+     * @param array<string, mixed> $data リクエストボディまたはクエリストリングの値
      * @param bool $useAuthentication 認証を利用するか否か
      */
     public function requestCustomEndpoint(
@@ -417,7 +461,7 @@ class Client
         HttpMethod $method,
         array $data = [],
         bool $useAuthentication = false,
-    ): stdClass|array {
+    ): mixed {
         $path = "/{$workspaceId}/{$endpointName}";
         return $this->runCurl($path, $method, $data, $useAuthentication);
     }
