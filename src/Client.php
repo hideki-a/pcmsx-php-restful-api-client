@@ -310,7 +310,7 @@ class Client
      * @param ApiMethod $apiMethod メソッド
      * @param array<string, mixed> $data パラメータ
      * @param bool $useAuthentication 認証を利用するか否か
-     * @param int $objectId オブジェクトID
+     * @param ?int $objectId オブジェクトID
      */
     private function request(
         string $model,
@@ -318,7 +318,7 @@ class Client
         ApiMethod $apiMethod,
         array $data,
         bool $useAuthentication = false,
-        int $objectId = null
+        ?int $objectId = null
     ): mixed {
         $httpMethod = HttpMethod::POST;
 
