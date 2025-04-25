@@ -124,10 +124,12 @@ class Client
         foreach ($responseHeaders as $key => $value) {
             if (strtolower($key) === 'set-cookie' && strpos($value, 'pt-api-user') === 0) {
                 preg_match('/^pt-api-user=([^;]+); expires=(.*?);.*$/', $value, $matches);
-                $this->cookie = (object) [
-                    'value' => $matches[1],
-                    'expires' => $matches[2],
-                ];
+                if (count($matches) >= 2) {
+                    $this->cookie = (object) [
+                        'value' => $matches[1],
+                        'expires' => $matches[2],
+                    ];
+                }
             }
         }
     }
@@ -198,7 +200,7 @@ class Client
         }
 
         $ch = curl_init();
-        if (!$ch) {  /** @phpstan-ignore-line */
+        if (!$ch) {
             exit('Could not initialize cURL session.');
         }
 
